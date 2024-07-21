@@ -61,6 +61,7 @@ using opt = std::optional<T>;
 // ETC
 #define submitInfo(n, ...) vkInfo(Submit, SUBMIT, n, __VA_ARGS__)
 #define presentInfo(n, ...) vkInfoKHR(Present, PRESENT, n, __VA_ARGS__)
+#define semaphoreWaitInfo(n, ...) vkInfo(SemaphoreWait, SEMAPHORE_WAIT, n, __VA_ARGS__)
 
 #endif
 

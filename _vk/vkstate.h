@@ -19,6 +19,7 @@
 #include "../general/macros.h"
 
 struct VkState {
+    GLFWwindow *glfwWindow;
     VkAllocationCallbacks *pAllocator = nullptr;
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
@@ -40,10 +41,29 @@ struct VkState {
     VkSemaphore imageAvailable;
     VkSemaphore renderFinished;
     VkFence inFlight;
+    bool framebufferResized = false;
 };
+
+void createSwapchain(VkState &vk) {
+    vk.surfaceDetails = getDetails(vk.physicalDevice, vk.surfaceDetails.surface, vk.glfwWindow);
+    auto swapchainCreateInfo = createSwapchainCreateInfo(vk.surfaceDetails, vk.queueFamilies);
+    vk.swapchain = createSwapchain(vk.device, swapchainCreateInfo);
+    vk.images = getImages(vk.device, vk.swapchain);
+    vk.imageViews = getViews(vk.device, vk.images, vk.surfaceDetails);
+    vk.framebuffers = getFramebuffers(vk.device, vk.imageViews, vk.renderPass, vk.surfaceDetails);
+}
+
+void framebufferSizeCallback(GLFWwindow *window, int width, int height) {
+    auto vk = reinterpret_cast<VkState*>(glfwGetWindowUserPointer(window));
+    vk->framebufferResized = true;
+}
 
 VkState initVulkan(GLFWwindow *window) {
     VkState vk;
+
+    glfwSetWindowUserPointer(window, &vk);
+    vk.glfwWindow = window;
+
     vk.instance = createInstance();
 #ifndef NO_DEBUG
     vk.debugMessenger = setupDebugMessenger(vk.instance);
@@ -58,14 +78,8 @@ VkState initVulkan(GLFWwindow *window) {
     vk.graphicsQueue = getDeviceQueue(vk.device, vk.queueFamilies.graphics.value());
     vk.surfaceQueue = getDeviceQueue(vk.device, vk.queueFamilies.surface.value());
 
-    auto swapchainCreateInfo = createSwapchainCreateInfo(vk.surfaceDetails, vk.queueFamilies);
-    vk.swapchain = createSwapchain(vk.device, swapchainCreateInfo);
-    vk.images = getImages(vk.device, vk.swapchain);
-    vk.imageViews = getViews(vk.device, vk.images, vk.surfaceDetails);
-
     vk.pipelineLayout = createPipelineLayout(vk.device);
     vk.renderPass = createRenderPass(vk.device, vk.surfaceDetails);
-    vk.framebuffers = getFramebuffers(vk.device, vk.imageViews, vk.renderPass, vk.surfaceDetails);
     vk.pipeline = createGraphicsPipeline(vk.device, vk.surfaceDetails, vk.pipelineLayout, vk.renderPass);
 
     vk.commandPool = createCommandPool(vk.device, vk.queueFamilies.graphics.value());
@@ -75,16 +89,51 @@ VkState initVulkan(GLFWwindow *window) {
     vk.renderFinished = createSemaphore(vk.device);
     vk.inFlight = createFence(vk.device);
 
+    createSwapchain(vk);
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+
     return vk;
 }
 
-void drawFrame(VkState vk) {
+void destroySwapchain(VkState &vk) {
+    for (auto framebuffer : vk.framebuffers) {
+        vkDestroyFramebuffer(vk.device, framebuffer, vk.pAllocator);
+    }
+    for (auto view : vk.imageViews) {
+        vkDestroyImageView(vk.device, view, vk.pAllocator);
+    }
+    vkDestroySwapchainKHR(vk.device, vk.swapchain, vk.pAllocator);
+}
+
+void refreshSwapchain(VkState &vk) {
+    vkDeviceWaitIdle(vk.device);
+
+    destroySwapchain(vk);
+
+    createSwapchain(vk);
+}
+
+
+void drawFrame(VkState &vk) {
     vkWaitForFences(vk.device, 1, &vk.inFlight, VK_TRUE, UINT64_MAX);
-    vkResetFences(vk.device, 1, &vk.inFlight);
+
 
     uint32_t imageIndex;
-    vkAcquireNextImageKHR(vk.device, vk.swapchain, UINT64_MAX, vk.imageAvailable, VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(vk.device, vk.swapchain, UINT64_MAX, vk.imageAvailable, VK_NULL_HANDLE, &imageIndex);
 
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || vk.framebufferResized || result == VK_SUBOPTIMAL_KHR) {
+        refreshSwapchain(vk);
+        vk.framebufferResized = false;
+        vkDeviceWaitIdle(vk.device);
+        vkDestroySemaphore(vk.device, vk.imageAvailable, vk.pAllocator);
+        vk.imageAvailable = createSemaphore(vk.device);
+        return;
+    }
+    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        throw std::runtime_error("failed to acquire swapchain image");
+    }
+
+    vkResetFences(vk.device, 1, &vk.inFlight);
     vkResetCommandBuffer(vk.commandBuffer, 0);
 
     recordRenderCommands(vk.commandBuffer, vk.framebuffers[imageIndex], vk.renderPass, vk.surfaceDetails, vk.pipeline);
@@ -119,7 +168,8 @@ void drawFrame(VkState vk) {
 
 }
 
-void cleanup(VkState vk) {
+
+void cleanup(VkState &vk) {
     vkDeviceWaitIdle(vk.device);
 
     vkDestroySemaphore(vk.device, vk.imageAvailable, vk.pAllocator);
@@ -128,17 +178,11 @@ void cleanup(VkState vk) {
 
     vkDestroyCommandPool(vk.device, vk.commandPool, vk.pAllocator);
 
-    for (auto framebuffer : vk.framebuffers) {
-        vkDestroyFramebuffer(vk.device, framebuffer, vk.pAllocator);
-    }
+    destroySwapchain(vk);
 
     vkDestroyPipeline(vk.device, vk.pipeline, vk.pAllocator);
     vkDestroyRenderPass(vk.device, vk.renderPass, vk.pAllocator);
     vkDestroyPipelineLayout(vk.device, vk.pipelineLayout, vk.pAllocator);
-    for (auto view : vk.imageViews) {
-        vkDestroyImageView(vk.device, view, vk.pAllocator);
-    }
-    vkDestroySwapchainKHR(vk.device, vk.swapchain, vk.pAllocator);
     vkDestroyDevice(vk.device, vk.pAllocator);
     vkDestroySurfaceKHR(vk.instance, vk.surfaceDetails.surface, vk.pAllocator);
 
