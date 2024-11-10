@@ -6,11 +6,12 @@
 #include <limits>
 #include <algorithm>
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include "/usr/include/vulkan/vulkan.h"
 
 #include "queues.h"
 #include "../general/macros.h"
+#include "../general/math.h"
+#include "../window/window.h"
 
 struct SurfaceDetails {
     VkSurfaceKHR surface;
@@ -41,31 +42,32 @@ VkPresentModeKHR selectPresentMode(vec<VkPresentModeKHR> &modes) {
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-VkExtent2D selectSwapExtent(VkSurfaceCapabilitiesKHR &capabilities, GLFWwindow *window) {
-    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
-        return capabilities.currentExtent;
+void selectSwapExtent(SurfaceDetails &details, window::Window window) {
+    if (details.capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+        details.selectedExtent = details.capabilities.currentExtent;
     } else {
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
+        math::vec2u dimensions = window::getDimensions(window);
 
-        VkExtent2D extent = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
+        VkExtent2D extent = { dimensions.x, dimensions.y };
 
-        auto minExtent = capabilities.minImageExtent;
-        auto maxExtent = capabilities.maxImageExtent;
+        auto minExtent = details.capabilities.minImageExtent;
+        auto maxExtent = details.capabilities.maxImageExtent;
 
         extent.width = std::clamp(extent.width, minExtent.width, maxExtent.width);
         extent.height = std::clamp(extent.height, minExtent.height, maxExtent.height);
 
-        return extent;
+        details.selectedExtent = extent;
     }
 }
 
-SurfaceDetails getDetails(VkPhysicalDevice device, VkSurfaceKHR surface, GLFWwindow *window) {
+SurfaceDetails getDetails(VkPhysicalDevice device, VkSurfaceKHR surface) {
     SurfaceDetails details;
 
     details.surface = surface;
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
+
+    STDOUT("CAP ALPHA: " << details.capabilities.supportedCompositeAlpha);
 
     uint32_t count;
     vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &count, nullptr);
@@ -82,10 +84,6 @@ SurfaceDetails getDetails(VkPhysicalDevice device, VkSurfaceKHR surface, GLFWwin
 
     details.selectedFormat = selectSurfaceFormat(details.formats);
     details.selectedMode = selectPresentMode(details.presentModes);
-
-    if (window != nullptr) {
-        details.selectedExtent = selectSwapExtent(details.capabilities, window);
-    }
 
     return details;
 }

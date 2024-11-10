@@ -4,8 +4,7 @@
 #include <stdexcept>
 #include <set>
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include "/usr/include/vulkan/vulkan.h"
 
 #include "pdevice.h"
 #include "queues.h"
@@ -42,7 +41,7 @@ VkDevice createVkDev(VkPhysicalDevice physicalDevice, QueueFamilyIndices indices
 
     VkDevice device;
     if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create logical device");
+        THROW("failed to create logical device");
     }
 
     return device;

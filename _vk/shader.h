@@ -1,8 +1,7 @@
 #ifndef _VK_SHADER
 #define _VK_SHADER
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include "/usr/include/vulkan/vulkan.h"
 
 #include "../general/io.h"
 #include "../general/macros.h"

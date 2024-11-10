@@ -15,11 +15,11 @@
 #include "renderpass.h"
 #include "command.h"
 #include "sync.h"
-#include "../_glfw/window.h"
+#include "../window/window.h"
 #include "../general/macros.h"
 
 struct VkState {
-    GLFWwindow *glfwWindow;
+    window::Window window;
     VkAllocationCallbacks *pAllocator = nullptr;
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
@@ -45,7 +45,8 @@ struct VkState {
 };
 
 void createSwapchain(VkState &vk) {
-    vk.surfaceDetails = getDetails(vk.physicalDevice, vk.surfaceDetails.surface, vk.glfwWindow);
+    vk.surfaceDetails = getDetails(vk.physicalDevice, vk.surfaceDetails.surface);
+    selectSwapExtent(vk.surfaceDetails, vk.window);
     auto swapchainCreateInfo = createSwapchainCreateInfo(vk.surfaceDetails, vk.queueFamilies);
     vk.swapchain = createSwapchain(vk.device, swapchainCreateInfo);
     vk.images = getImages(vk.device, vk.swapchain);
@@ -58,19 +59,20 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height) {
     vk->framebufferResized = true;
 }
 
-VkState initVulkan(GLFWwindow *window) {
+VkState initVulkan(window::Window window) {
     VkState vk;
 
-    glfwSetWindowUserPointer(window, &vk);
-    vk.glfwWindow = window;
+    glfwSetWindowUserPointer((GLFWwindow *)window.window, &vk);
+    vk.window = window;
 
     vk.instance = createInstance();
 #ifndef NO_DEBUG
     vk.debugMessenger = setupDebugMessenger(vk.instance);
 #endif
-    auto surface = createSurface(window, vk.instance);
+    auto surface = window::createSurface(window, vk.instance);
     vk.physicalDevice = selectPhysDev(vk.instance, surface);
-    vk.surfaceDetails = getDetails(vk.physicalDevice, surface, window);
+    vk.surfaceDetails = getDetails(vk.physicalDevice, surface);
+    selectSwapExtent(vk.surfaceDetails, vk.window);
 
     vk.queueFamilies = findQueueFamilies(vk.physicalDevice, surface);
     vk.device = createVkDev(vk.physicalDevice, vk.queueFamilies);
@@ -90,7 +92,7 @@ VkState initVulkan(GLFWwindow *window) {
     vk.inFlight = createFence(vk.device);
 
     createSwapchain(vk);
-    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetFramebufferSizeCallback((GLFWwindow *)window.window, framebufferSizeCallback);
 
     return vk;
 }

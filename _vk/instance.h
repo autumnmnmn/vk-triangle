@@ -19,6 +19,13 @@ std::vector<const char*> getRequiredExtensions() {
 #ifndef NO_DEBUG
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
+    //extensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+    extensions.push_back("VK_KHR_surface");
+    extensions.push_back("VK_KHR_xlib_surface");
+
+    for(const char* ext : extensions) {
+        STDOUT("ext: " << ext);
+    }
 
     return extensions;
 }

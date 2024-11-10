@@ -1,28 +1,32 @@
 #include <cstdlib>
+#include <chrono>
+#include <thread>
 
-#include "_glfw/window.h"
 #include "_vk/vkstate.h"
 #include "general/macros.h"
+#include "general/math.h"
 
-const uint32_t WIDTH = 800;
-const uint32_t HEIGHT = 600;
+const math::vec2u windowDimensions = { 500, 500 };
 
-void mainLoop(GLFWwindow *window, VkState &vk) {
-    while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
+void mainLoop(window::Window window, VkState &vk) {
+    while (!window::shouldClose(window)) {
+        window::pollEvents(window);
+        //STDOUT("transp: " << glfwGetWindowAttrib(window, GLFW_TRANSPARENT_FRAMEBUFFER));
         drawFrame(vk);
     }
 }
 
 int main() {
     try {
-        auto window = initWindow(WIDTH, HEIGHT);
+        enum window::Implementation implementation = window::X11;
+
+        window::Window window = window::get(implementation, windowDimensions);
         auto vk = initVulkan(window);
 
         mainLoop(window, vk);
 
         cleanup(vk);
-        cleanup(window);
+        window::dispose(window);
     } catch (const std::exception& e) {
         STDERR(e.what());
         return EXIT_FAILURE;
@@ -30,4 +34,5 @@ int main() {
 
     return EXIT_SUCCESS;
 }
+
 

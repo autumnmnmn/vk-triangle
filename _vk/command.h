@@ -1,8 +1,7 @@
 #ifndef _VK_COMMAND
 #define _VK_COMMAND
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include "/usr/include/vulkan/vulkan.h"
 
 #include "../general/macros.h"
 
@@ -43,7 +42,7 @@ void recordRenderCommands(VkCommandBuffer buffer, VkFramebuffer framebuffer, VkR
         throw std::runtime_error("failed to begin recording command buffer");
     }
 
-    VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+    VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 0.0f}}};
 
     renderPassBeginInfo(renderBegin,
         .renderPass = renderPass,

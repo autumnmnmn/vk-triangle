@@ -7,8 +7,7 @@
 #include <limits>
 #include <algorithm>
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include "/usr/include/vulkan/vulkan.h"
 
 #include "queues.h"
 #include "surface.h"
@@ -39,7 +38,7 @@ bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface) {
         }
     }
 
-    auto surfaceDetails = getDetails(device, surface, nullptr);
+    auto surfaceDetails = getDetails(device, surface);
     if (surfaceDetails.formats.empty() || surfaceDetails.presentModes.empty()) {
         return false;
     }

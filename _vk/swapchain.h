@@ -6,8 +6,7 @@
 #include <limits>
 #include <algorithm>
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include "/usr/include/vulkan/vulkan.h"
 
 #include "queues.h"
 #include "surface.h"
@@ -29,6 +28,7 @@ VkSwapchainCreateInfoKHR createSwapchainCreateInfo(SurfaceDetails surface, Queue
         .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
         .preTransform = surface.capabilities.currentTransform,
         .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+        //.compositeAlpha = VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
         .presentMode = surface.selectedMode,
         .clipped = VK_TRUE,
         .oldSwapchain = VK_NULL_HANDLE

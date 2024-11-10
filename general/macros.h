@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <optional>
+#include <stdexcept>
 
 template<class T>
 using vec = std::vector<T>;
@@ -13,6 +14,7 @@ using opt = std::optional<T>;
 
 #define STDOUT(x) std::cout << x << std::endl
 #define STDERR(x) std::cerr << x << std::endl
+#define THROW(x) throw std::runtime_error(x)
 
 #define vkInfo(type, stype, name, ...) Vk ## type ## Info name = {.sType = VK_STRUCTURE_TYPE_ ## stype ## _INFO, __VA_ARGS__};
 #define vkInfoKHR(type, stype, name, ...) Vk ## type ## InfoKHR name = {.sType = VK_STRUCTURE_TYPE_ ## stype ## _INFO_KHR, __VA_ARGS__};
@@ -39,6 +41,7 @@ using opt = std::optional<T>;
 #define debugUtilsMessengerInfo(n, ...) vkCreateInfoExt(DebugUtilsMessenger, DEBUG_UTILS_MESSENGER, n, __VA_ARGS__)
 // (khr)
 #define swapchainInfo(n, ...) vkCreateInfoKhr(Swapchain, SWAPCHAIN, n, __VA_ARGS__)
+#define xlibSurfaceInfo(n, ...) vkCreateInfoKhr(XlibSurface, XLIB_SURFACE, n, __VA_ARGS__)
 
 // (pipeline)
 #define pipelineLayoutInfo(n, ...) vkCreateInfo(PipelineLayout, PIPELINE_LAYOUT, n, __VA_ARGS__)

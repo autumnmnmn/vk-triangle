@@ -1,8 +1,7 @@
 #ifndef _VK_SYNC
 #define _VK_SYNC
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include "/usr/include/vulkan/vulkan.h"
 
 #include "../general/macros.h"
 
