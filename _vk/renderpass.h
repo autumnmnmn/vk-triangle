@@ -1,9 +1,7 @@
 #ifndef _VK_RENDERPASS
 #define _VK_RENDERPASS
 
-#include "/usr/include/vulkan/vulkan.h"
-
-#include "../general/macros.h"
+#include "macros.h"
 
 #define l_op(x) VK_ATTACHMENT_LOAD_OP_ ## x
 #define s_op(x) VK_ATTACHMENT_STORE_OP_ ## x

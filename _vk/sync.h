@@ -1,9 +1,7 @@
 #ifndef _VK_SYNC
 #define _VK_SYNC
 
-#include "/usr/include/vulkan/vulkan.h"
-
-#include "../general/macros.h"
+#include "macros.h"
 
 VkSemaphore createSemaphore(VkDevice device) {
     semaphoreInfo(info);

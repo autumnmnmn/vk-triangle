@@ -1,9 +1,7 @@
 #ifndef _VK_QUEUES
 #define _VK_QUEUES
 
-#include "/usr/include/vulkan/vulkan.h"
-
-#include "../general/macros.h"
+#include "macros.h"
 
 struct QueueFamilyIndices {
     opt<uint32_t> graphics;

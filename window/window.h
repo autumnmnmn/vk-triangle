@@ -3,6 +3,7 @@
 
 #include "/usr/include/vulkan/vulkan.h"
 
+#include "../_vk/macros.h"
 #include "../general/macros.h"
 #include "../general/math.h"
 #include "_glfw/window.h"

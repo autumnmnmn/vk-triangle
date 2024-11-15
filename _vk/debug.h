@@ -5,9 +5,7 @@
 #include <cstring>
 #include <stdexcept>
 
-#include "/usr/include/vulkan/vulkan.h"
-
-#include "../general/macros.h"
+#include "macros.h"
 
 const vec<const char*> validationLayers = {
     "VK_LAYER_KHRONOS_validation",

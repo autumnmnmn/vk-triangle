@@ -4,11 +4,9 @@
 #include <stdexcept>
 #include <set>
 
-#include "/usr/include/vulkan/vulkan.h"
-
+#include "macros.h"
 #include "pdevice.h"
 #include "queues.h"
-#include "../general/macros.h"
 
 VkDevice createVkDev(VkPhysicalDevice physicalDevice, QueueFamilyIndices indices) {
     vec<VkDeviceQueueCreateInfo> queueCreateInfos;

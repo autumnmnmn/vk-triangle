@@ -4,6 +4,9 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "../window/window.h"
+
+#include "macros.h"
 #include "debug.h"
 #include "queues.h"
 #include "device.h"
@@ -15,8 +18,6 @@
 #include "renderpass.h"
 #include "command.h"
 #include "sync.h"
-#include "../window/window.h"
-#include "../general/macros.h"
 
 struct VkState {
     window::Window window;

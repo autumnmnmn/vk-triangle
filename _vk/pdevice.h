@@ -7,11 +7,9 @@
 #include <limits>
 #include <algorithm>
 
-#include "/usr/include/vulkan/vulkan.h"
-
+#include "macros.h"
 #include "queues.h"
 #include "surface.h"
-#include "../general/macros.h"
 
 const vec<const char*> requiredExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,

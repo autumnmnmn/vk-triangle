@@ -6,12 +6,11 @@
 #include <limits>
 #include <algorithm>
 
-#include "/usr/include/vulkan/vulkan.h"
-
-#include "queues.h"
-#include "../general/macros.h"
 #include "../general/math.h"
 #include "../window/window.h"
+
+#include "macros.h"
+#include "queues.h"
 
 struct SurfaceDetails {
     VkSurfaceKHR surface;

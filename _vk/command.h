@@ -1,9 +1,7 @@
 #ifndef _VK_COMMAND
 #define _VK_COMMAND
 
-#include "/usr/include/vulkan/vulkan.h"
-
-#include "../general/macros.h"
+#include "macros.h"
 
 VkCommandPool createCommandPool(VkDevice device, uint32_t queueFamilyIndex) {
     commandPoolInfo(info,

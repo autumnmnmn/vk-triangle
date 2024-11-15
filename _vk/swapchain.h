@@ -6,11 +6,9 @@
 #include <limits>
 #include <algorithm>
 
-#include "/usr/include/vulkan/vulkan.h"
-
+#include "macros.h"
 #include "queues.h"
 #include "surface.h"
-#include "../general/macros.h"
 
 VkSwapchainCreateInfoKHR createSwapchainCreateInfo(SurfaceDetails surface, QueueFamilyIndices indices) {
     uint32_t imageCount = surface.capabilities.minImageCount + 1;

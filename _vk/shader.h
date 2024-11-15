@@ -1,10 +1,9 @@
 #ifndef _VK_SHADER
 #define _VK_SHADER
 
-#include "/usr/include/vulkan/vulkan.h"
-
 #include "../general/io.h"
-#include "../general/macros.h"
+
+#include "macros.h"
 
 VkShaderModule createShaderModule(VkDevice device, const vec<char> &code) {
     shaderModuleInfo(createInfo,

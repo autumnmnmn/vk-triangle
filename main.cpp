@@ -24,6 +24,7 @@ int main() {
         auto vk = initVulkan(window);
 
         mainLoop(window, vk);
+        //while (!window::shouldClose(window)) window::pollEvents(window);
 
         cleanup(vk);
         window::dispose(window);

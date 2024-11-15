@@ -1,11 +1,8 @@
 #ifndef _VK_PIPELINE
 #define _VK_PIPELINE
 
-#include "/usr/include/vulkan/vulkan.h"
-
+#include "macros.h"
 #include "shader.h"
-#include "../general/macros.h"
-
 
 const vec<VkDynamicState> dynamicStates = {
     VK_DYNAMIC_STATE_VIEWPORT,
